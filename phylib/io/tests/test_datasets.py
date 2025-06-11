@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Tests of dataset utility functions."""
 
 # ------------------------------------------------------------------------------
@@ -147,10 +145,7 @@ def test_download_file(tempdir, mock_urls):
     assert_succeeds = (
         data_here
         and data_valid
-        and (
-            (checksum_here == checksum_valid)
-            or (not (checksum_here) and checksum_valid)
-        )
+        and ((checksum_here == checksum_valid) or (not (checksum_here) and checksum_valid))
     )
 
     download_succeeds = assert_succeeds or (

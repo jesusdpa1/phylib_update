@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Template model."""
 
 
@@ -59,9 +57,7 @@ def read_array(path, mmap_mode=None):
             if np.any(errors):
                 n = np.sum(errors)
                 n_tot = errors.size
-                logger.warning(
-                    '%d/%d values are %s in %s, replacing by zero.', n, n_tot, w, path
-                )
+                logger.warning('%d/%d values are %s in %s, replacing by zero.', n, n_tot, w, path)
                 out[errors] = 0
     return out
 
@@ -88,9 +84,7 @@ def from_sparse(data, cols, channel_ids):
     """
     # The axis in the data that contains the channels.
     if len(channel_ids) != len(np.unique(channel_ids)):
-        raise NotImplementedError(
-            'Multiple identical requested channels in from_sparse().'
-        )
+        raise NotImplementedError('Multiple identical requested channels in from_sparse().')
     channel_axis = 1
     shape = list(data.shape)
     assert data.ndim >= 2
@@ -495,9 +489,7 @@ class TemplateModel(object):
         # Template features.
         self.sparse_template_features = self._load_template_features()
         self.template_features = (
-            self.sparse_template_features.data
-            if self.sparse_template_features
-            else None
+            self.sparse_template_features.data if self.sparse_template_features else None
         )
 
         # Spike attributes.
@@ -507,14 +499,11 @@ class TemplateModel(object):
         self.metadata = self._load_metadata()
 
     def _find_path(self, *names, multiple_ok=True, mandatory=True):
-        full_paths = list(
-            l[0] for l in [list(self.dir_path.glob(name)) for name in names] if l
-        )
+        full_paths = list(l[0] for l in [list(self.dir_path.glob(name)) for name in names] if l)
         path = _find_first_existing_path(*full_paths, multiple_ok=multiple_ok)
         if mandatory and not path:
             raise IOError(
-                'None of these files could be found in %s: %s.'
-                % (self.dir_path, ', '.join(names))
+                'None of these files could be found in %s: %s.' % (self.dir_path, ', '.join(names))
             )
         return path
 
@@ -579,9 +568,7 @@ class TemplateModel(object):
         return out
 
     def _load_channel_positions(self):
-        path = self._find_path(
-            'channel_positions.npy', 'channels.localCoordinates*.npy'
-        )
+        path = self._find_path('channel_positions.npy', 'channels.localCoordinates*.npy')
         out = self._read_array(path)
         out = np.atleast_2d(out)
         assert out.ndim == 2
@@ -611,9 +598,7 @@ class TemplateModel(object):
         if not self.dat_path:
             if os.environ.get('PHY_VIRTUAL_RAW_DATA', None):  # pragma: no cover
                 n_samples = int((self.spike_times[-1] + 1) * self.sample_rate)
-                return RandomEphysReader(
-                    n_samples, len(channel_map), sample_rate=self.sample_rate
-                )
+                return RandomEphysReader(n_samples, len(channel_map), sample_rate=self.sample_rate)
             return
         n = self.n_channels_dat
         # self.dat_path could be any object accepted by get_ephys_reader().
@@ -630,9 +615,7 @@ class TemplateModel(object):
 
     def _load_amplitudes(self):
         try:
-            out = self._read_array(
-                self._find_path('amplitudes.npy', 'spikes.amps*.npy')
-            )
+            out = self._read_array(self._find_path('amplitudes.npy', 'spikes.amps*.npy'))
             assert out.ndim == 1
             return out
         except IOError:
@@ -646,9 +629,7 @@ class TemplateModel(object):
             out = out.astype(np.int32)
         uc = np.unique(out)
         if np.max(uc) - np.min(uc) + 1 != uc.size:
-            logger.warning(
-                'Unreferenced clusters found in templates (generally not a problem)'
-            )
+            logger.warning('Unreferenced clusters found in templates (generally not a problem)')
         assert out.dtype in (np.uint16, np.uint32, np.int32, np.int64)
         assert out.ndim == 1
         return out
@@ -706,9 +687,7 @@ class TemplateModel(object):
             if samples_path:
                 samples = self._read_array(samples_path)
             else:
-                logger.info(
-                    'Loading spikes.times.npy in seconds, converting to samples.'
-                )
+                logger.info('Loading spikes.times.npy in seconds, converting to samples.')
                 samples = np.round(times * self.sample_rate).astype(np.uint64)
         assert samples.ndim == times.ndim == 1
         return samples, times
@@ -723,9 +702,7 @@ class TemplateModel(object):
                 'on the fly from the raw data as needed.'
             )
             return
-        logger.debug(
-            'Loading spikes subset waveforms to avoid fetching waveforms from raw data.'
-        )
+        logger.debug('Loading spikes subset waveforms to avoid fetching waveforms from raw data.')
         try:
             return Bunch(
                 waveforms=self._read_array(path, mmap_mode='r'),
@@ -770,9 +747,7 @@ class TemplateModel(object):
             # That means templates.npy is considered as a dense array.
             # Proper fix would be to save templates.npy as a true sparse array, with proper
             # template_ind.npy (without an s).
-            path = self._find_path(
-                'template_ind.npy', 'templates.waveformsChannels*.npy'
-            )
+            path = self._find_path('template_ind.npy', 'templates.waveformsChannels*.npy')
             cols = self._read_array(path)
             if cols.ndim != 2:  # pragma: no cover
                 cols = np.atleast_2d(cols).T
@@ -834,9 +809,7 @@ class TemplateModel(object):
             return
 
         try:
-            cols = self._read_array(
-                self._find_path('pc_feature_ind.npy'), mmap_mode='r'
-            )
+            cols = self._read_array(self._find_path('pc_feature_ind.npy'), mmap_mode='r')
             logger.debug('Features are sparse.')
             if cols.ndim == 1:  # pragma: no cover
                 # Deal with npcs = 1.
@@ -859,9 +832,7 @@ class TemplateModel(object):
         # Sparse structure: regular array with row and col indices.
         try:
             logger.debug('Loading template features.')
-            data = self._read_array(
-                self._find_path('template_features.npy'), mmap_mode='r'
-            )
+            data = self._read_array(self._find_path('template_features.npy'), mmap_mode='r')
             assert data.dtype in (np.float32, np.float64)
             assert data.ndim == 2
             n_spikes, n_channels_loc = data.shape
@@ -900,9 +871,7 @@ class TemplateModel(object):
         max_amp = amplitude[best_channel]
         # Find the channels X% peak.
         amplitude_threshold = (
-            amplitude_threshold
-            if amplitude_threshold is not None
-            else self.amplitude_threshold
+            amplitude_threshold if amplitude_threshold is not None else self.amplitude_threshold
         )
         peak_channels = np.nonzero(amplitude >= amplitude_threshold * max_amp)[0]
         # Find N closest channels.
@@ -944,9 +913,7 @@ class TemplateModel(object):
         if not self.sparse_templates:
             return
         template_w = self.sparse_templates.data[template_id, ...]
-        template = (
-            self._unwhiten(template_w).astype(np.float32) if unwhiten else template_w
-        )
+        template = self._unwhiten(template_w).astype(np.float32) if unwhiten else template_w
         assert template.ndim == 2
         channel_ids_, amplitude, best_channel = self._find_best_channels(
             template, amplitude_threshold=amplitude_threshold
@@ -983,11 +950,7 @@ class TemplateModel(object):
         channel_ids = channel_ids.astype(np.uint32)
 
         # Unwhiten.
-        template = (
-            self._unwhiten(template_w, channel_ids=channel_ids)
-            if unwhiten
-            else template_w
-        )
+        template = self._unwhiten(template_w, channel_ids=channel_ids) if unwhiten else template_w
         template = template.astype(np.float32)
         assert template.ndim == 2
         assert template.shape[1] == len(channel_ids)
@@ -1007,9 +970,7 @@ class TemplateModel(object):
 
     def get_merge_map(self):
         """ "Gets the maps of merges and splits between spikes.clusters and spikes.templates"""
-        inverse_mapping_dict = {
-            key: [] for key in range(np.max(self.spike_clusters) + 1)
-        }
+        inverse_mapping_dict = {key: [] for key in range(np.max(self.spike_clusters) + 1)}
         for temp in np.unique(self.spike_templates):
             idx = np.where(self.spike_templates == temp)[0]
             new_idx = self.spike_clusters[idx]
@@ -1017,9 +978,7 @@ class TemplateModel(object):
             for n in mapping:
                 inverse_mapping_dict[n].append(temp)
 
-        nan_idx = np.array(
-            [idx for idx, val in inverse_mapping_dict.items() if len(val) == 0]
-        )
+        nan_idx = np.array([idx for idx, val in inverse_mapping_dict.items() if len(val) == 0])
 
         return inverse_mapping_dict, nan_idx
 
@@ -1027,9 +986,7 @@ class TemplateModel(object):
     # Data access methods
     # --------------------------------------------------------------------------
 
-    def get_template(
-        self, template_id, channel_ids=None, amplitude_threshold=None, unwhiten=True
-    ):
+    def get_template(self, template_id, channel_ids=None, amplitude_threshold=None, unwhiten=True):
         """Get data about a template."""
         if self.sparse_templates and self.sparse_templates.cols is not None:
             return self._get_template_sparse(template_id, unwhiten=unwhiten)
@@ -1149,9 +1106,7 @@ class TemplateModel(object):
             cols = tf.cols[self.spike_templates[spike_ids]]
         else:
             cols = np.tile(np.arange(n_templates_loc), (len(spike_ids), 1))
-        template_features = from_sparse(
-            template_features, cols, np.arange(self.n_templates)
-        )
+        template_features = from_sparse(template_features, cols, np.arange(self.n_templates))
 
         assert template_features.shape[0] == ns
         return template_features
@@ -1164,21 +1119,14 @@ class TemplateModel(object):
         c = 0
         spikes_depths = np.zeros_like(self.spike_times) * np.nan
         nspi = spikes_depths.shape[0]
-        if (
-            self.sparse_features is None
-            or self.sparse_features.data.shape[0] != self.n_spikes
-        ):
+        if self.sparse_features is None or self.sparse_features.data.shape[0] != self.n_spikes:
             return None
         while True:
             ispi = np.arange(c, min(c + nbatch, nspi))
             # take only first component
             features = self.sparse_features.data[ispi, :, 0]
-            features = (
-                np.maximum(features, 0) ** 2
-            )  # takes only positive values into account
-            ichannels = self.sparse_features.cols[self.spike_templates[ispi]].astype(
-                np.uint32
-            )
+            features = np.maximum(features, 0) ** 2  # takes only positive values into account
+            ichannels = self.sparse_features.cols[self.spike_templates[ispi]].astype(np.uint32)
             # features = np.square(self.sparse_features.data[ispi, :, 0])
             # ichannels = self.sparse_features.cols[self.spike_templates[ispi]].astype(np.int64)
             ypos = self.channel_positions[ichannels, 1]
@@ -1224,9 +1172,7 @@ class TemplateModel(object):
             templates_wfs[n, :, :] = np.matmul(sparse.data[n, :, :], self.wmi)
 
         # The amplitude on each channel is the positive peak minus the negative
-        templates_ch_amps = np.max(templates_wfs, axis=1) - np.min(
-            templates_wfs, axis=1
-        )
+        templates_ch_amps = np.max(templates_wfs, axis=1) - np.min(templates_wfs, axis=1)
 
         # The template arbitrary unit amplitude is the amplitude of its largest channel
         # (but see below for true tempAmps)
@@ -1235,13 +1181,10 @@ class TemplateModel(object):
 
         with np.errstate(divide='ignore', invalid='ignore'):
             # take the average spike amplitude per template
-            templates_amps_v = np.bincount(spikes, weights=spike_amps) / np.bincount(
-                spikes
-            )
+            templates_amps_v = np.bincount(spikes, weights=spike_amps) / np.bincount(spikes)
             # scale back the template according to the spikes units
             templates_physical_unit = (
-                templates_wfs
-                * (templates_amps_v / templates_amps_au)[:, np.newaxis, np.newaxis]
+                templates_wfs * (templates_amps_v / templates_amps_au)[:, np.newaxis, np.newaxis]
             )
 
         return (
@@ -1328,8 +1271,7 @@ class TemplateModel(object):
         channel_ids = template.channel_ids
         # Get all templates from which this cluster stems from.
         templates = [
-            self.get_template(template_id, unwhiten=unwhiten)
-            for template_id in template_ids
+            self.get_template(template_id, unwhiten=unwhiten) for template_id in template_ids
         ]
         # Construct the waveforms array.
         ns = self.n_samples_waveforms
@@ -1370,9 +1312,7 @@ class TemplateModel(object):
         tmp = sparse.data
         n_templates, n_samples, n_channels = tmp.shape
         if sparse.cols is None:
-            template_peak_channels = np.argmax(
-                tmp.max(axis=1) - tmp.min(axis=1), axis=1
-            )
+            template_peak_channels = np.argmax(tmp.max(axis=1) - tmp.min(axis=1), axis=1)
         else:
             # when the templates are sparse, the first channel is the highest amplitude channel
             template_peak_channels = sparse.cols[:, 0]
@@ -1459,9 +1399,7 @@ class TemplateModel(object):
 
     def save_spike_clusters(self, spike_clusters):
         """Save the spike clusters."""
-        path = self._find_path(
-            'spike_clusters.npy', 'spikes.clusters.npy', multiple_ok=False
-        )
+        path = self._find_path('spike_clusters.npy', 'spikes.clusters.npy', multiple_ok=False)
         logger.debug('Save spike clusters to `%s`.', path)
         np.save(path, spike_clusters)
 
@@ -1556,9 +1494,7 @@ def get_template_params(params_path):
 
     if isinstance(params['dat_path'], str):
         params['dat_path'] = [params['dat_path']]
-    params['dat_path'] = [
-        _make_abs_path(_, params['dir_path']) for _ in params['dat_path']
-    ]
+    params['dat_path'] = [_make_abs_path(_, params['dir_path']) for _ in params['dat_path']]
     return params
 
 

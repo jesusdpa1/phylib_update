@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Utility functions for test datasets."""
 
 # ------------------------------------------------------------------------------
@@ -126,8 +124,7 @@ def download_file(url, output_path):
         _save_stream(r, output_path)
         if _check_md5_of_url(output_path, url) is False:
             raise RuntimeError(
-                'The checksum of the downloaded file '
-                "doesn't match the provided checksum."
+                "The checksum of the downloaded file doesn't match the provided checksum."
             )
     return
 

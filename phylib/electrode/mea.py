@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Multi-electrode arrays."""
 
 
@@ -38,11 +36,7 @@ def _edges_to_adjacency_list(edges):
 
 
 def _adjacency_subset(adjacency, subset):
-    return {
-        c: [v for v in vals if v in subset]
-        for (c, vals) in adjacency.items()
-        if c in subset
-    }
+    return {c: [v for v in vals if v in subset] for (c, vals) in adjacency.items() if c in subset}
 
 
 def _remap_adjacency(adjacency, mapping):

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # flake8: noqa
 
 """Utilities for large-scale ephys data analysis."""

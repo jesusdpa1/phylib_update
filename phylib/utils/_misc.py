@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Utility functions."""
 
 
@@ -256,9 +254,7 @@ def read_tsv(path):
         # Skip the header.
         field_names = list(next(reader))
         for row in reader:
-            data.append(
-                {k: _try_make_number(v) for k, v in zip(field_names, row) if v != ''}
-            )
+            data.append({k: _try_make_number(v) for k, v in zip(field_names, row) if v != ''})
     logger.log(5, 'Read %s.', path)
     return data
 
@@ -303,10 +299,7 @@ def write_tsv(path, data, first_field=None, exclude_fields=(), n_significant_fig
         # Write all rows.
         writer.writerows(
             [
-                [
-                    _pretty_floats(row.get(field, None), n_significant_figures)
-                    for field in fields
-                ]
+                [_pretty_floats(row.get(field, None), n_significant_figures) for field in fields]
                 for row in data
             ]
         )
@@ -351,9 +344,7 @@ def _write_tsv_simple(path, field_name, data):
     with path.open('w', newline='') as f:
         writer = csv.writer(f, delimiter=delimiter)
         writer.writerow(['cluster_id', field_name])
-        writer.writerows(
-            [(cluster_id, data[cluster_id]) for cluster_id in sorted(data)]
-        )
+        writer.writerows([(cluster_id, data[cluster_id]) for cluster_id in sorted(data)])
     logger.debug('Wrote %s.', path)
 
 

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Utility functions for NumPy arrays."""
 
 # ------------------------------------------------------------------------------
@@ -219,9 +217,7 @@ def read_array(path, mmap_mode=None):
     file_ext = path.suffix
     if file_ext == '.npy':
         return np.load(str(path), mmap_mode=mmap_mode)
-    raise NotImplementedError(
-        'The file extension `{}` is not currently supported.' % file_ext
-    )
+    raise NotImplementedError('The file extension `{}` is not currently supported.' % file_ext)
 
 
 def write_array(path, arr):
@@ -230,9 +226,7 @@ def write_array(path, arr):
     file_ext = path.suffix
     if file_ext == '.npy':
         return np.save(str(path), arr)
-    raise NotImplementedError(
-        'The file extension `{}` is not currently supported.' % file_ext
-    )
+    raise NotImplementedError('The file extension `{}` is not currently supported.' % file_ext)
 
 
 # -----------------------------------------------------------------------------
@@ -307,9 +301,7 @@ def data_chunk(data, chunk, with_overlap=False):
         else:
             i, j = chunk[2:]
     else:
-        raise ValueError(
-            "'chunk' should have 2 or 4 elements, not {0:d}".format(len(chunk))
-        )
+        raise ValueError("'chunk' should have 2 or 4 elements, not {0:d}".format(len(chunk)))
     return data[i:j, ...]
 
 
@@ -326,9 +318,7 @@ def get_excerpts(data, n_excerpts=None, excerpt_size=None):
     out = np.concatenate(
         [
             data_chunk(data, chunk)
-            for chunk in excerpts(
-                len(data), n_excerpts=n_excerpts, excerpt_size=excerpt_size
-            )
+            for chunk in excerpts(len(data), n_excerpts=n_excerpts, excerpt_size=excerpt_size)
         ]
     )
     assert len(out) <= n_excerpts * excerpt_size

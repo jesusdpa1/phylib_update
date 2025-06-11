@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
 # flake8: noqa
 
 """Installation script."""
 
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Imports
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 import os
 import os.path as op
@@ -16,15 +15,18 @@ import re
 from setuptools import setup
 
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Setup
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
 
 def _package_tree(pkgroot):
     path = op.dirname(__file__)
-    subdirs = [op.relpath(i[0], path).replace(op.sep, '.')
-               for i in os.walk(op.join(path, pkgroot))
-               if '__init__.py' in i[2]]
+    subdirs = [
+        op.relpath(i[0], path).replace(op.sep, '.')
+        for i in os.walk(op.join(path, pkgroot))
+        if '__init__.py' in i[2]
+    ]
     return subdirs
 
 
@@ -41,7 +43,7 @@ with open('requirements.txt') as f:
 setup(
     name='phylib',
     version=version,
-    license="BSD",
+    license='BSD',
     description='Ephys data analysis for thousands of channels',
     long_description=readme,
     long_description_content_type='text/markdown',
@@ -52,8 +54,17 @@ setup(
     package_dir={'phylib': 'phylib'},
     package_data={
         'phylib': [
-            '*.vert', '*.frag', '*.glsl', '*.npy', '*.gz', '*.txt',
-            '*.html', '*.css', '*.js', '*.prb'],
+            '*.vert',
+            '*.frag',
+            '*.glsl',
+            '*.npy',
+            '*.gz',
+            '*.txt',
+            '*.html',
+            '*.css',
+            '*.js',
+            '*.prb',
+        ],
     },
     include_package_data=True,
     keywords='phy,data analysis,electrophysiology,neuroscience',
@@ -62,7 +73,7 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
-        "Framework :: IPython",
+        'Framework :: IPython',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
     ],

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Testing the Template model."""
 
 # ------------------------------------------------------------------------------
@@ -123,10 +121,7 @@ def test_model_merge(template_model_full):
     m = template_model_full
 
     # This is the case where we can do the merging
-    if (
-        not np.all(m.spike_templates == m.spike_clusters)
-        and m.sparse_clusters.cols is None
-    ):
+    if not np.all(m.spike_templates == m.spike_clusters) and m.sparse_clusters.cols is None:
         assert len(m.merge_map) > 0
         assert not np.array_equal(m.sparse_clusters.data, m.sparse_templates.data)
         assert m.sparse_clusters.data.shape[0] == m.n_clusters

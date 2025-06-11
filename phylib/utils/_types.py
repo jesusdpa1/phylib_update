@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Utility functions."""
 
 
@@ -116,9 +114,7 @@ def _as_array(arr, dtype=None):
         if out.dtype != dtype:
             out = out.astype(dtype)
     if out.dtype not in _ACCEPTED_ARRAY_DTYPES:
-        raise ValueError(
-            "'arr' seems to have an invalid dtype: {0:s}".format(str(out.dtype))
-        )
+        raise ValueError("'arr' seems to have an invalid dtype: {0:s}".format(str(out.dtype)))
     return out
 
 
