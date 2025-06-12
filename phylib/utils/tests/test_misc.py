@@ -74,7 +74,7 @@ def test_json_simple(tempdir):
     path.write_text('')
     assert load_json(path) == {}
     with raises(IOError):
-        load_json('%s_bis' % path)
+        load_json(f'{path}_bis')
 
 
 @mark.parametrize('kind', ['json', 'pickle'])

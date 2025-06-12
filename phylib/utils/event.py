@@ -1,4 +1,3 @@
-from __future__ import print_function
 
 """Simple event system."""
 
@@ -20,7 +19,7 @@ logger = logging.getLogger(__name__)
 # ------------------------------------------------------------------------------
 
 
-class EventEmitter(object):
+class EventEmitter:
     """Singleton class that emits events and accepts registered callbacks.
 
     Example
@@ -129,7 +128,7 @@ class EventEmitter(object):
             sender_name,
             event,
             ', '.join(map(str, args)),
-            ', '.join('%s=%s' % (k, v) for k, v in kwargs.items()),
+            ', '.join(f'{k}={v}' for k, v in kwargs.items()),
         )
         # Call the last callback if this is a single event.
         single = kwargs.pop('single', None)
@@ -137,7 +136,7 @@ class EventEmitter(object):
         # Put `last=True` callbacks at the end.
         callbacks = [c for c in self._callbacks if not c[-1].get('last', None)]
         callbacks += [c for c in self._callbacks if c[-1].get('last', None)]
-        for e, s, f, k in callbacks:
+        for e, s, f, _k in callbacks:
             if e == event and (s is None or s == sender):
                 f_name = getattr(f, '__qualname__', getattr(f, '__name__', str(f)))
                 s_name = s.__class__.__name__
@@ -158,7 +157,7 @@ class PartialFormatter(string.Formatter):
 
     def get_field(self, field_name, args, kwargs):
         try:
-            return super(PartialFormatter, self).get_field(field_name, args, kwargs)
+            return super().get_field(field_name, args, kwargs)
         except (KeyError, AttributeError):
             return None, field_name
 
@@ -167,7 +166,7 @@ class PartialFormatter(string.Formatter):
         if value is None:
             return '?'
         try:
-            return super(PartialFormatter, self).format_field(value, spec)
+            return super().format_field(value, spec)
         except ValueError:
             return '?'
 
@@ -190,7 +189,7 @@ def _default_on_complete(message, end='\n', **kwargs):
     print(fmt.format(message + '\033[K', **kwargs), end=end)
 
 
-class ProgressReporter(object):
+class ProgressReporter:
     """A class that reports progress done.
 
     Example
@@ -218,7 +217,7 @@ class ProgressReporter(object):
     """
 
     def __init__(self):
-        super(ProgressReporter, self).__init__()
+        super().__init__()
         self._value = 0
         self._value_max = 0
         self._has_completed = False

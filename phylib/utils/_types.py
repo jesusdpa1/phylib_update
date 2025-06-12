@@ -32,12 +32,12 @@ class Bunch(dict):
     """A subclass of dictionary with an additional dot syntax."""
 
     def __init__(self, *args, **kwargs):
-        super(Bunch, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.__dict__ = self
 
     def copy(self):
         """Return a new Bunch instance which is a copy of the current Bunch instance."""
-        return Bunch(super(Bunch, self).copy())
+        return Bunch(super().copy())
 
 
 def _bunchify(b):
@@ -110,11 +110,10 @@ def _as_array(arr, dtype=None):
     if isinstance(arr, (int, float)):
         arr = [arr]
     out = np.asarray(arr)
-    if dtype is not None:
-        if out.dtype != dtype:
-            out = out.astype(dtype)
+    if dtype is not None and out.dtype != dtype:
+        out = out.astype(dtype)
     if out.dtype not in _ACCEPTED_ARRAY_DTYPES:
-        raise ValueError("'arr' seems to have an invalid dtype: {0:s}".format(str(out.dtype)))
+        raise ValueError(f"'arr' seems to have an invalid dtype: {str(out.dtype):s}")
     return out
 
 

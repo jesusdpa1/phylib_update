@@ -67,7 +67,7 @@ def _load_multiple_files(fn, subdirs):
 # ------------------------------------------------------------------------------
 
 
-class Merger(object):
+class Merger:
     """Merge spike-sorted data from different probes and output datasets to disk.
 
     Constructor
@@ -152,7 +152,7 @@ class Merger(object):
         cluster_probes_l = []
         coffset = 0
         toffset = 0
-        for i, (subdir, sc, st) in enumerate(
+        for i, (_subdir, sc, st) in enumerate(
             zip(self.subdirs, spike_clusters_l, spike_templates_l)
         ):
             n_clu = np.max(sc) + 1

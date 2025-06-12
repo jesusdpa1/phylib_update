@@ -160,7 +160,7 @@ def _get_chunk_bounds(arr_sizes, chunk_size):
 def _apply_op(op, arg, arr):
     if op == 'cols':
         return arr[:, arg]
-    f = getattr(arr, '__%s__' % op)
+    f = getattr(arr, f'__{op}__')
     return f(arg) if arg is not None else f()
 
 
@@ -184,7 +184,7 @@ def _memmap_flat(path, dtype=None, n_channels=None, offset=0, mode='r+'):
 # ------------------------------------------------------------------------------
 
 
-class BaseEphysReader(object):
+class BaseEphysReader:
     # To be set in child classes:
     sample_rate = 0
     n_channels = 0
@@ -315,8 +315,7 @@ class BaseEphysReader(object):
         raise NotImplementedError()
 
     def iter_chunks(self, cache=True):
-        for i0, i1 in zip(self.chunk_bounds[:-1], self.chunk_bounds[1:]):
-            yield i0, i1
+        yield from zip(self.chunk_bounds[:-1], self.chunk_bounds[1:])
 
 
 class FlatEphysReader(BaseEphysReader):
@@ -330,7 +329,7 @@ class FlatEphysReader(BaseEphysReader):
         mode='r',
         **kwargs,
     ):
-        super(FlatEphysReader, self).__init__()
+        super().__init__()
         if isinstance(paths, (str, Path)):
             paths = [paths]
         self._paths = [Path(p) for p in paths]
@@ -361,7 +360,7 @@ class FlatEphysReader(BaseEphysReader):
 
 class MtscompEphysReader(BaseEphysReader):
     def __init__(self, reader, **kwargs):
-        super(MtscompEphysReader, self).__init__()
+        super().__init__()
         if isinstance(reader, (tuple, list)):  # pragma: no cover
             assert reader
             # TODO: support concatenation of multiple .cbin files. Currently, only take the first.
@@ -428,7 +427,7 @@ class MtscompEphysReader(BaseEphysReader):
 
 class ArrayEphysReader(BaseEphysReader):
     def __init__(self, arr, **kwargs):
-        super(ArrayEphysReader, self).__init__()
+        super().__init__()
         self._arr = arr
         self.sample_rate = kwargs.pop('sample_rate', None)
         assert self.sample_rate > 0
@@ -453,14 +452,14 @@ class NpyEphysReader(ArrayEphysReader):
         self.name = path.stem
         self.dir_path = path.parent
         self._arr = np.load(path, mmap_mode='r')  # TODO: support for multiple npy files
-        super(NpyEphysReader, self).__init__(self._arr, **kwargs)
+        super().__init__(self._arr, **kwargs)
 
 
 class RandomEphysReader(BaseEphysReader):
     name = 'random'
 
     def __init__(self, n_samples, n_channels, sample_rate=None, **kwargs):
-        super(RandomEphysReader, self).__init__()
+        super().__init__()
         self.sample_rate = sample_rate
         assert self.sample_rate > 0
         self.dtype = np.float32
@@ -494,7 +493,7 @@ def _get_ephys_constructor(obj, **kwargs):
             return None, None, {}
         assert path.exists()
         ext = path.suffix
-        assert ext, 'No extension found in file `%s`' % path
+        assert ext, f'No extension found in file `{path}`'
         # Mtscomp file
         if ext == '.cbin':
             reader = mtscomp.Reader(n_threads=mp.cpu_count() // 2)
@@ -507,7 +506,7 @@ def _get_ephys_constructor(obj, **kwargs):
             return (NpyEphysReader, obj, kwargs)
             # TODO: other standard binary formats
         else:  # pragma: no cover
-            raise IOError('Unknown file extension: `%s`.' % ext)
+            raise OSError(f'Unknown file extension: `{ext}`.')
     elif isinstance(obj, (tuple, list)):
         if obj:
             # Concatenate the main argument to the constructor.
@@ -579,7 +578,7 @@ def _npy_header(shape, dtype, order='C'):  # pragma: no cover
     return d
 
 
-class NpyWriter(object):
+class NpyWriter:
     def __init__(self, path, shape, dtype, axis=0):
         assert axis == 0  # only concatenation along the first axis is supported right now
         # Only C order is supported at the moment.

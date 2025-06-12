@@ -99,7 +99,7 @@ def _load(path):
 # ------------------------------------------------------------------------------
 
 
-class EphysAlfCreator(object):
+class EphysAlfCreator:
     """Class for converting a dataset in KS/phy format into ALF."""
 
     def __init__(self, model):
@@ -115,7 +115,7 @@ class EphysAlfCreator(object):
         self.label = label
         self.ampfactor = ampfactor
         if self.out_path.resolve() == self.dir_path.resolve():
-            raise IOError('The source and target directories cannot be the same.')
+            raise OSError('The source and target directories cannot be the same.')
         if not self.out_path.exists():
             self.out_path.mkdir()
 

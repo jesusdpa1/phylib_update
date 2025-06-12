@@ -61,12 +61,12 @@ class _CustomEncoder(json.JSONEncoder):
         elif isinstance(obj, np.ndarray):
             obj_contiguous = np.ascontiguousarray(obj)
             data_b64 = base64.b64encode(obj_contiguous.data).decode('utf8')
-            return dict(__ndarray__=data_b64, dtype=str(obj.dtype), shape=obj.shape)
+            return {'__ndarray__': data_b64, 'dtype': str(obj.dtype), 'shape': obj.shape}
         elif obj.__class__.__name__ == 'QByteArray':
             return {'__qbytearray__': _encode_qbytearray(obj)}
         elif isinstance(obj, np.generic):
             return obj.item()
-        return super(_CustomEncoder, self).default(obj)  # pragma: no cover
+        return super().default(obj)  # pragma: no cover
 
 
 def _json_custom_hook(d):
@@ -106,7 +106,7 @@ def _pretty_floats(obj, n=2):
     if isinstance(obj, (float, np.floating)):
         return ('%.' + str(n) + 'f') % obj
     elif isinstance(obj, dict):
-        return dict((k, _pretty_floats(v)) for k, v in obj.items())
+        return {k: _pretty_floats(v) for k, v in obj.items()}
     elif isinstance(obj, (list, tuple)):
         return list(map(_pretty_floats, obj))
     return obj
@@ -116,7 +116,7 @@ def load_json(path):
     """Load a JSON file."""
     path = Path(path)
     if not path.exists():
-        raise IOError("The JSON file `{}` doesn't exist.".format(path))
+        raise OSError(f"The JSON file `{path}` doesn't exist.")
     contents = path.read_text()
     if not contents:
         return {}
@@ -176,7 +176,7 @@ def read_python(path):
     """
     path = Path(path)
     if not path.exists():  # pragma: no cover
-        raise IOError('Path %s does not exist.', path)
+        raise OSError('Path %s does not exist.', path)
     contents = path.read_text()
     metadata = {}
     exec(contents, {}, metadata)
@@ -202,8 +202,8 @@ def write_python(path, data):
     with open(path, 'w') as f:
         for k, v in data.items():
             if isinstance(v, str):
-                v = '"%s"' % v
-            f.write('%s = %s\n' % (k, str(v)))
+                v = f'"{v}"'
+            f.write(f'{k} = {str(v)}\n')
 
 
 def read_text(path):

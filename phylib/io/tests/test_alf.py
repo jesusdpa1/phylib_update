@@ -23,7 +23,7 @@ from ..model import TemplateModel
 # ------------------------------------------------------------------------------
 
 
-class Dataset(object):
+class Dataset:
     def __init__(self, tempdir):
         np.random.seed(42)
         self.tmp_dir = tempdir

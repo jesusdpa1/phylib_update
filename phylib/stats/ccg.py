@@ -54,10 +54,7 @@ def firing_rate(spike_clusters, cluster_ids=None, bin_size=None, duration=None):
     """Compute the average number of spikes per cluster per bin."""
 
     # Take the cluster order into account.
-    if cluster_ids is None:
-        cluster_ids = _unique(spike_clusters)
-    else:
-        cluster_ids = _as_array(cluster_ids)
+    cluster_ids = _unique(spike_clusters) if cluster_ids is None else _as_array(cluster_ids)
 
     # Like spike_clusters, but with 0..n_clusters-1 indices.
     spike_clusters_i = _index_of(spike_clusters, cluster_ids)
@@ -135,10 +132,7 @@ def correlograms(
     assert winsize_bins % 2 == 1
 
     # Take the cluster order into account.
-    if cluster_ids is None:
-        clusters = _unique(spike_clusters)
-    else:
-        clusters = _as_array(cluster_ids)
+    clusters = _unique(spike_clusters) if cluster_ids is None else _as_array(cluster_ids)
     n_clusters = len(clusters)
 
     # Like spike_clusters, but with 0..n_clusters-1 indices.

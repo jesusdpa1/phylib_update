@@ -149,7 +149,7 @@ def save_metadata(filename, field_name, metadata):
 
 def _all_positions_distinct(positions):
     """Return whether all positions are distinct."""
-    return len(set(tuple(row) for row in positions)) == len(positions)
+    return len({tuple(row) for row in positions}) == len(positions)
 
 
 def get_closest_channels(channel_positions, channel_index, n=None):
@@ -256,7 +256,7 @@ def _find_first_existing_path(*paths, multiple_ok=True):
         if path.exists():
             out.append(path)
     if len(out) >= 2 and not multiple_ok:  # pragma: no cover
-        raise IOError('Multiple conflicting files exist: %s.' % ', '.join((out, path)))
+        raise OSError('Multiple conflicting files exist: {}.'.format(', '.join((out, path))))
     elif len(out) >= 1:
         return out[0]
     else:
@@ -271,11 +271,11 @@ def _close_memmap(name, obj):
     elif getattr(obj, 'arrs', None) is not None:  # pragma: no cover
         # Support ConcatenatedArrays.
         # NOTE: no longer used since EphysTraces
-        _close_memmap('%s.arrs' % name, obj.arrs)
+        _close_memmap(f'{name}.arrs', obj.arrs)
     elif isinstance(obj, (list, tuple)):
-        [_close_memmap('%s[]' % name, item) for item in obj]
+        [_close_memmap(f'{name}[]', item) for item in obj]
     elif isinstance(obj, dict):
-        [_close_memmap('%s.%s' % (name, n), item) for n, item in obj.items()]
+        [_close_memmap(f'{name}.{n}', item) for n, item in obj.items()]
 
 
 # ------------------------------------------------------------------------------
@@ -293,7 +293,7 @@ SKIP_SPIKE_ATTRS = (
 )
 
 
-class TemplateModel(object):
+class TemplateModel:
     """Object holding all data of a KiloSort/phy dataset.
 
     Constructor
@@ -452,13 +452,13 @@ class TemplateModel(object):
         # Whitening.
         try:
             self.wm = self._load_wm()
-        except IOError:
+        except OSError:
             logger.debug('Whitening matrix file not found.')
             self.wm = np.eye(nc)
         assert self.wm.shape == (nc, nc)
         try:
             self.wmi = self._load_wmi()
-        except IOError:
+        except OSError:
             logger.debug('Whitening matrix inverse file not found, computing it.')
             self.wmi = self._compute_wmi(self.wm)
         assert self.wmi.shape == (nc, nc)
@@ -499,17 +499,17 @@ class TemplateModel(object):
         self.metadata = self._load_metadata()
 
     def _find_path(self, *names, multiple_ok=True, mandatory=True):
-        full_paths = list(l[0] for l in [list(self.dir_path.glob(name)) for name in names] if l)
+        full_paths = [l[0] for l in [list(self.dir_path.glob(name)) for name in names] if l]
         path = _find_first_existing_path(*full_paths, multiple_ok=multiple_ok)
         if mandatory and not path:
-            raise IOError(
-                'None of these files could be found in %s: %s.' % (self.dir_path, ', '.join(names))
+            raise OSError(
+                'None of these files could be found in {}: {}.'.format(self.dir_path, ', '.join(names))
             )
         return path
 
     def _read_array(self, path, mmap_mode=None):
         if not path:
-            raise IOError()
+            raise OSError()
         return read_array(path, mmap_mode=mmap_mode).squeeze()
 
     def _write_array(self, path, arr):
@@ -553,7 +553,7 @@ class TemplateModel(object):
                 arr = self._read_array(filename)
                 assert arr.shape[0] == self.n_spikes
                 logger.debug('Load %s.', filename.name)
-            except (IOError, AssertionError) as e:
+            except (OSError, AssertionError) as e:
                 logger.warning('Unable to open %s: %s.', filename.name, e)
                 continue
             spike_attributes[n] = arr
@@ -581,7 +581,7 @@ class TemplateModel(object):
             out = np.atleast_1d(out)
             assert out.ndim == 1
             return out
-        except IOError:
+        except OSError:
             return np.zeros(self.n_channels, dtype=np.int32)
 
     def _load_channel_shanks(self):
@@ -590,7 +590,7 @@ class TemplateModel(object):
             out = self._read_array(path).reshape((-1,))
             assert out.ndim == 1
             return out
-        except IOError:
+        except OSError:
             logger.debug('No channel shank file found.')
             return np.zeros(self.n_channels, dtype=np.int32)
 
@@ -618,7 +618,7 @@ class TemplateModel(object):
             out = self._read_array(self._find_path('amplitudes.npy', 'spikes.amps*.npy'))
             assert out.ndim == 1
             return out
-        except IOError:
+        except OSError:
             logger.debug('No amplitude file found.')
             return
 
@@ -719,7 +719,7 @@ class TemplateModel(object):
             out = np.atleast_2d(out)
             assert out.ndim == 2
             return out
-        except IOError:
+        except OSError:
             return np.zeros((self.n_templates, self.n_templates))
 
     def _load_templates(self):
@@ -738,7 +738,7 @@ class TemplateModel(object):
             empty_templates = np.all(np.all(np.isnan(data), axis=1), axis=1)
             data[empty_templates, ...] = 0
             n_templates, n_samples, n_channels_loc = data.shape
-        except IOError:
+        except OSError:
             return
 
         try:
@@ -755,7 +755,7 @@ class TemplateModel(object):
             logger.debug('Templates are sparse.')
 
             assert cols.shape == (n_templates, n_channels_loc)
-        except IOError:
+        except OSError:
             logger.debug('Templates are dense.')
             cols = None
 
@@ -805,7 +805,7 @@ class TemplateModel(object):
             assert data.dtype in (np.float32, np.float64)
             data = data.transpose((0, 2, 1))
             n_spikes, n_channels_loc, n_pcs = data.shape
-        except IOError:
+        except OSError:
             return
 
         try:
@@ -816,14 +816,14 @@ class TemplateModel(object):
                 cols = cols.reshape(cols.shape + (1,))
             assert cols.ndim == 2
             assert cols.shape == (self.n_templates, n_channels_loc)
-        except IOError:
+        except OSError:
             logger.debug('Features are dense.')
             cols = None
 
         try:
             rows = self._read_array(self._find_path('pc_feature_spike_ids.npy'))
             assert rows.shape == (n_spikes,)
-        except IOError:
+        except OSError:
             rows = None
 
         return Bunch(data=data, cols=cols, rows=rows)
@@ -836,21 +836,21 @@ class TemplateModel(object):
             assert data.dtype in (np.float32, np.float64)
             assert data.ndim == 2
             n_spikes, n_channels_loc = data.shape
-        except IOError:
+        except OSError:
             return
 
         try:
             cols = self._read_array(self._find_path('template_feature_ind.npy'))
             logger.debug('Template features are sparse.')
             assert cols.shape == (self.n_templates, n_channels_loc)
-        except IOError:
+        except OSError:
             cols = None
             logger.debug('Template features are dense.')
 
         try:
             rows = self._read_array(self._find_path('template_feature_spike_ids.npy'))
             assert rows.shape == (n_spikes,)
-        except IOError:
+        except OSError:
             rows = None
 
         return Bunch(data=data, cols=cols, rows=rows)
@@ -1218,17 +1218,17 @@ class TemplateModel(object):
         """Display basic information about the dataset."""
 
         def _print(name, value):
-            print('{0: <24}{1}'.format(name, value))
+            print(f'{name: <24}{value}')
 
         _print('Data files', ', '.join(map(str, self.dat_path)))
         _print('Directory', self.dir_path)
-        _print('Duration', '{:.1f}s'.format(self.duration))
-        _print('Sample rate', '{:.1f} kHz'.format(self.sample_rate / 1000.0))
+        _print('Duration', f'{self.duration:.1f}s')
+        _print('Sample rate', f'{self.sample_rate / 1000.0:.1f} kHz')
         _print('Data type', self.dtype)
         _print('# of channels', self.n_channels)
         _print('# of channels (raw)', self.n_channels_dat)
         _print('# of templates', self.n_templates)
-        _print('# of spikes', '{:,}'.format(self.n_spikes))
+        _print('# of spikes', f'{self.n_spikes:,}')
 
     def get_template_counts(self, cluster_id):
         """Return a histogram of the number of spikes in each template for a given cluster."""
@@ -1392,7 +1392,7 @@ class TemplateModel(object):
     def save_metadata(self, name, values):
         """Save a dictionary {cluster_id: value} with cluster metadata in
         a TSV file."""
-        path = self.dir_path / ('cluster_%s.tsv' % name)
+        path = self.dir_path / (f'cluster_{name}.tsv')
         logger.debug('Save cluster metadata to `%s`.', path)
         # Remove empty values.
         save_metadata(path, name, {c: v for c, v in values.items() if v is not None})

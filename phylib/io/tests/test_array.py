@@ -49,7 +49,7 @@ def test_clip():
 def test_range_from_slice():
     """Test '_range_from_slice'."""
 
-    class _SliceTest(object):
+    class _SliceTest:
         """Utility class to make it more convenient to test slice objects."""
 
         def __init__(self, **kwargs):

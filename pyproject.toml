@@ -96,11 +96,14 @@ target-version = "py39"
 # Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default
 select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "PIE", "NPY201"]
 ignore = [
-    "E265", # block comment should start with '# '
-    "E731", # do not assign a lambda expression, use a def
-    "E741", # ambiguous variable name
-    "W605", # invalid escape sequence
+    "E265",   # block comment should start with '# '
+    "E731",   # do not assign a lambda expression, use a def
+    "E741",   # ambiguous variable name
+    "W605",   # invalid escape sequence
+    "N806",   # Variable naming (if you want to keep Mx, My style)
+    "SIM115", # Context manager (if the file handling is complex)
 ]
+
 
 [tool.ruff.lint.isort]
 known-first-party = ["phylib"]
