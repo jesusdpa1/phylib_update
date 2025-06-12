@@ -337,7 +337,9 @@ class FlatEphysReader(BaseEphysReader):
         self.name = paths[0].stem
         self.dir_path = paths[0].parent
         self._mmaps = [
-            _memmap_flat(path, dtype=dtype, n_channels=n_channels, offset=offset, mode=mode)
+            _memmap_flat(
+                path, dtype=dtype, n_channels=n_channels, offset=offset, mode=mode
+            )
             for path in paths
         ]
 
@@ -399,12 +401,16 @@ class MtscompEphysReader(BaseEphysReader):
 
         for batch in range(reader.n_batches):
             first_chunk = reader.batch_size * batch  # first included
-            last_chunk = min(reader.batch_size * (batch + 1), reader.n_chunks)  # last excluded
+            last_chunk = min(
+                reader.batch_size * (batch + 1), reader.n_chunks
+            )  # last excluded
             assert 0 <= first_chunk < last_chunk <= reader.n_chunks
 
             if cache:
+                chunk_list = ', '.join(map(str, range(first_chunk, last_chunk)))
                 logger.debug(
-                    f'Processing batch #{batch + 1}/{reader.n_batches} with chunks {", ".join(map(str, range(first_chunk, last_chunk)))}.'
+                    f'Processing batch #{batch + 1}/{reader.n_batches} '
+                    f'with chunks {chunk_list}.'
                 )
                 # Decompress all chunks in the batch.
                 reader.decompress_chunks(range(first_chunk, last_chunk), reader.pool)
@@ -531,7 +537,9 @@ def get_ephys_reader(obj, **kwargs):
 # ------------------------------------------------------------------------------
 
 
-def get_spike_waveforms(spike_ids, channel_ids, spike_waveforms=None, n_samples_waveforms=None):
+def get_spike_waveforms(
+    spike_ids, channel_ids, spike_waveforms=None, n_samples_waveforms=None
+):
     """Get spike waveforms from precomputed doubly sparse spike waveforms array.
 
     The `spike_waveforms` object is a Bunch with attributes
@@ -577,7 +585,9 @@ def _npy_header(shape, dtype, order='C'):  # pragma: no cover
 
 class NpyWriter:
     def __init__(self, path, shape, dtype, axis=0):
-        assert axis == 0  # only concatenation along the first axis is supported right now
+        assert (
+            axis == 0
+        )  # only concatenation along the first axis is supported right now
         # Only C order is supported at the moment.
         self.shape = shape
         self.dtype = np.dtype(dtype)
@@ -643,13 +653,15 @@ def extract_waveforms(traces, spike_samples, channel_ids, n_samples_waveforms=No
     # Extract the spike waveforms.
     out = np.zeros((ns, nsw, nc), dtype=traces.dtype)
     for i, ts in enumerate(spike_samples):
-        out[i] = _extract_waveform(traces, ts, channel_ids=channel_ids, n_samples_waveforms=nsw)[
-            np.newaxis, ...
-        ]
+        out[i] = _extract_waveform(
+            traces, ts, channel_ids=channel_ids, n_samples_waveforms=nsw
+        )[np.newaxis, ...]
     return out
 
 
-def iter_waveforms(traces, spike_samples, spike_channels, n_samples_waveforms=None, cache=False):
+def iter_waveforms(
+    traces, spike_samples, spike_channels, n_samples_waveforms=None, cache=False
+):
     """Iterate over trace chunks and yield batches of spike waveforms."""
     spike_samples = np.asarray(spike_samples)
     spike_channels = np.asarray(spike_channels)
@@ -671,7 +683,9 @@ def iter_waveforms(traces, spike_samples, spike_channels, n_samples_waveforms=No
         if ns == 0:
             continue
         # Extract the spike waveforms within the chunk.
-        waveforms = np.zeros((ns, n_samples_waveforms, n_channels_loc), dtype=traces.dtype)
+        waveforms = np.zeros(
+            (ns, n_samples_waveforms, n_channels_loc), dtype=traces.dtype
+        )
         for i, s in enumerate(ss):
             channel_ids = sc[i, :]
             waveforms[i, ...] = _extract_waveform(
