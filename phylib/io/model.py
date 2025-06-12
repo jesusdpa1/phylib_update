@@ -589,7 +589,7 @@ class TemplateModel:
             assert out.ndim == 1
             return out
         except OSError:
-            logger.debug(f'No channel shank file found.')
+            logger.debug('No channel shank file found.')
             return np.zeros(self.n_channels, dtype=np.int32)
 
     def _load_traces(self, channel_map=None):
@@ -617,7 +617,7 @@ class TemplateModel:
             assert out.ndim == 1
             return out
         except OSError:
-            logger.debug(f'No amplitude file found.')
+            logger.debug('No amplitude file found.')
             return
 
     def _load_spike_templates(self):
@@ -646,7 +646,7 @@ class TemplateModel:
             logger.debug(f'Copying from {tmp_path} to {path}.')
             shutil.copy(tmp_path, path)
         assert path.exists()
-        logger.debug(f'Loading spike clusters.')
+        logger.debug('Loading spike clusters.')
         # NOTE: we make a copy in memory so that we can update this array
         # during manual clustering.
         out = self._read_array(path).astype(np.int32)
@@ -750,24 +750,24 @@ class TemplateModel:
             if cols.ndim != 2:  # pragma: no cover
                 cols = np.atleast_2d(cols).T
             assert cols.ndim == 2
-            logger.debug(f'Templates are sparse.')
+            logger.debug('Templates are sparse.')
 
             assert cols.shape == (n_templates, n_channels_loc)
         except OSError:
-            logger.debug(f'Templates are dense.')
+            logger.debug('Templates are dense.')
             cols = None
 
         return Bunch(data=data, cols=cols)
 
     def _load_wm(self):
-        logger.debug(f'Loading the whitening matrix.')
+        logger.debug('Loading the whitening matrix.')
         out = self._read_array(self._find_path('whitening_mat.npy'))
         out = np.atleast_2d(out)
         assert out.ndim == 2
         return out
 
     def _load_wmi(self):  # pragma: no cover
-        logger.debug(f'Loading the inverse of the whitening matrix.')
+        logger.debug('Loading the inverse of the whitening matrix.')
         out = self._read_array(self._find_path('whitening_mat_inv.npy'))
         out = np.atleast_2d(out)
         assert out.ndim == 2
@@ -794,7 +794,7 @@ class TemplateModel:
     def _load_features(self):
         # Sparse structure: regular array with row and col indices.
         try:
-            logger.debug(f'Loading features.')
+            logger.debug('Loading features.')
             data = self._read_array(self._find_path('pc_features.npy'), mmap_mode='r')
             if data.ndim == 2:  # pragma: no cover
                 # Deal with npcs = 1.
@@ -808,14 +808,14 @@ class TemplateModel:
 
         try:
             cols = self._read_array(self._find_path('pc_feature_ind.npy'), mmap_mode='r')
-            logger.debug(f'Features are sparse.')
+            logger.debug('Features are sparse.')
             if cols.ndim == 1:  # pragma: no cover
                 # Deal with npcs = 1.
                 cols = cols.reshape(cols.shape + (1,))
             assert cols.ndim == 2
             assert cols.shape == (self.n_templates, n_channels_loc)
         except OSError:
-            logger.debug(f'Features are dense.')
+            logger.debug('Features are dense.')
             cols = None
 
         try:
@@ -829,7 +829,7 @@ class TemplateModel:
     def _load_template_features(self):
         # Sparse structure: regular array with row and col indices.
         try:
-            logger.debug(f'Loading template features.')
+            logger.debug('Loading template features.')
             data = self._read_array(self._find_path('template_features.npy'), mmap_mode='r')
             assert data.dtype in (np.float32, np.float64)
             assert data.ndim == 2
@@ -839,11 +839,11 @@ class TemplateModel:
 
         try:
             cols = self._read_array(self._find_path('template_feature_ind.npy'))
-            logger.debug(f'Template features are sparse.')
+            logger.debug('Template features are sparse.')
             assert cols.shape == (self.n_templates, n_channels_loc)
         except OSError:
             cols = None
-            logger.debug(f'Template features are dense.')
+            logger.debug('Template features are dense.')
 
         try:
             rows = self._read_array(self._find_path('template_feature_spike_ids.npy'))
@@ -1447,7 +1447,7 @@ class TemplateModel:
         assert best_channels.shape[0] == self.n_templates
         spike_channels = best_channels[self.spike_templates[spike_ids], :]
         assert spike_channels.shape == (ns, nc)
-        logger.debug(f'Saving spike waveforms: spike channels.')
+        logger.debug('Saving spike waveforms: spike channels.')
         np.save(path_channels, spike_channels)
 
         # Extract waveforms from the raw data on a chunk by chunk basis.
