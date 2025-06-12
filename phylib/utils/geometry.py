@@ -104,11 +104,7 @@ def _find_box_size(x, y, ar=0.5, margin=0):
     logger.log(5, 'Get box size for %d points.', len(x))
     # Deal with degenerate x case.
     xmin, xmax = x.min(), x.max()
-    if xmin == xmax:
-        # If all positions are vertical, the width can be maximum.
-        wmax = 1.0
-    else:
-        wmax = xmax - xmin
+    wmax = 1.0 if xmin == xmax else xmax - xmin
 
     def f1(w, keep_aspect_ratio=True, h=None):
         """Return true if the configuration with the current box size

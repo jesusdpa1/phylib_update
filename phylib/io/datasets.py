@@ -81,13 +81,16 @@ def _check_md5(path, checksum):
 
 
 def _check_md5_of_url(output_path, url):
+    checksum = None
     try:
         checksum = download_text_file(url + '.md5').split(' ')[0]
     except Exception:
         checksum = None
-    finally:
-        if checksum:
-            return _check_md5(output_path, checksum)
+
+    # Move the return outside the finally block
+    if checksum:
+        return _check_md5(output_path, checksum)
+    return None
 
 
 def download_file(url, output_path):

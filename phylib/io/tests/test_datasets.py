@@ -12,6 +12,7 @@ import numpy as np
 import responses
 from numpy.testing import assert_array_equal as ae
 from pytest import fixture, raises
+from requests.exceptions import HTTPError, RequestException
 
 from phylib.utils.testing import captured_logging
 
@@ -111,7 +112,7 @@ def test_check_md5_of_url(tempdir, mock_url):
 @responses.activate
 def test_download_not_found(tempdir):
     path = Path(tempdir) / 'test'
-    with raises(Exception):
+    with raises(HTTPError):
         download_file(_URL + '_notfound', path)
 
 
@@ -145,7 +146,10 @@ def test_download_file(tempdir, mock_urls):
     assert_succeeds = (
         data_here
         and data_valid
-        and ((checksum_here == checksum_valid) or (not (checksum_here) and checksum_valid))
+        and (
+            (checksum_here == checksum_valid)
+            or (not (checksum_here) and checksum_valid)
+        )
     )
 
     download_succeeds = assert_succeeds or (
@@ -155,9 +159,8 @@ def test_download_file(tempdir, mock_urls):
     if download_succeeds:
         data = _dl(path)
     else:
-        with raises(Exception):
+        with raises(RequestException):
             data = _dl(path)
-
     if assert_succeeds:
         _check(data)
 
