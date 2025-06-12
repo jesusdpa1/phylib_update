@@ -404,10 +404,7 @@ class MtscompEphysReader(BaseEphysReader):
 
             if cache:
                 logger.debug(
-                    'Processing batch #%d/%d with chunks %s.',
-                    batch + 1,
-                    reader.n_batches,
-                    ', '.join(map(str, range(first_chunk, last_chunk))),
+                    f'Processing batch #{batch + 1}/{reader.n_batches} with chunks {", ".join(map(str, range(first_chunk, last_chunk)))}.'
                 )
                 # Decompress all chunks in the batch.
                 reader.decompress_chunks(range(first_chunk, last_chunk), reader.pool)
@@ -489,7 +486,7 @@ def _get_ephys_constructor(obj, **kwargs):
     elif isinstance(obj, (str, Path)):
         path = Path(obj)
         if not path.exists():  # pragma: no cover
-            logger.warning('File %s does not exist.', path)
+            logger.warning(f'File {path} does not exist.')
             return None, None, {}
         assert path.exists()
         ext = path.suffix

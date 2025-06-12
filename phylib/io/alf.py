@@ -66,10 +66,10 @@ def _create_if_possible(path, new_path, force=False):
     """Prepare the copy/move/symlink of a file, by making sure the source exists
     while the destination does not."""
     if not Path(path).exists():  # pragma: no cover
-        logger.warning('Path %s does not exist, skipping.', path)
+        logger.warning(f'Path {path} does not exist, skipping.')
         return False
     if Path(new_path).exists() and not force:  # pragma: no cover
-        logger.warning('Path %s already exists, skipping.', new_path)
+        logger.warning(f'Path {new_path} already exists, skipping.')
         return False
     ensure_dir_exists(new_path.parent)
     return True
@@ -78,7 +78,7 @@ def _create_if_possible(path, new_path, force=False):
 def _copy_if_possible(path, new_path, force=False):
     if not _create_if_possible(path, new_path, force=force):
         return False
-    logger.debug('Copying %s to %s.', path, new_path)
+    logger.debug(f'Copying {path} to {new_path}.')
     shutil.copy(path, new_path)
     return True
 

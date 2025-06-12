@@ -43,9 +43,7 @@ def _range_from_slice(myslice, start=None, stop=None, step=None, length=None):
         stop_inferred = floor(start + step * length)
         if stop is not None and stop < stop_inferred:
             raise ValueError(
-                f"'stop' ({stop}) and "
-                + f"'length' ({length}) "
-                + 'are not compatible.'
+                f"'stop' ({stop}) and " + f"'length' ({length}) " + 'are not compatible.'
             )
         stop = stop_inferred
     if stop is None and length is None:

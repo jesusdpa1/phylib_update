@@ -99,7 +99,7 @@ class Merger:
 
     def _save(self, name, arr):
         """Save a npy array in the output directory."""
-        logger.debug('Saving %s %s %s.', name, arr.dtype, arr.shape)
+        logger.debug(f'Saving {name} {arr.dtype} {arr.shape}.')
         np.save(self.out_dir / name, arr)
 
     def write_params(self):
@@ -291,7 +291,7 @@ class Merger:
             try:
                 concat = block_diag(*_load_multiple_files(fn, self.subdirs))
             except FileNotFoundError:
-                logger.debug('File %s not found, skipping.', fn)
+                logger.debug(f'File {fn} not found, skipping.')
                 continue
             self._save(fn, concat)
 

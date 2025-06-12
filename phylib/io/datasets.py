@@ -54,7 +54,7 @@ def _download(url, stream=None):
 
     r = get(url, stream=stream)
     if r.status_code != 200:  # pragma: no cover
-        logger.debug('Error while downloading %s.', url)
+        logger.debug(f'Error while downloading {url}.')
         r.raise_for_status()
     return r
 
@@ -112,12 +112,9 @@ def download_file(url, output_path):
     if path.exists():
         checked = _check_md5_of_url(output_path, url)
         if checked is False:
-            logger.debug(
-                'The file `%s` already exists but is invalid: redownloading.',
-                output_path,
-            )
+            logger.debug(f'The file `{output_path}` already exists but is invalid: redownloading.')
         elif checked is True:
-            logger.debug('The file `%s` already exists: skipping.', output_path)
+            logger.debug(f'The file `{output_path}` already exists: skipping.')
             return output_path
     r = _download(url, stream=True)
     _save_stream(r, output_path)
